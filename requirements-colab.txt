@@ -1,0 +1,15 @@
+# Colab-specific install list.
+#
+# Deliberately excludes torch/torchvision: Colab preinstalls a matched
+# torch + torchvision + CUDA build, and letting pip re-resolve torch here
+# (even just to satisfy a >= constraint) can silently upgrade torch while
+# leaving the preinstalled torchvision behind, breaking torchvision's
+# compiled ops (e.g. "operator torchvision::nms does not exist").
+# See requirements.txt for the full pinned list used for local installs.
+
+diffusers>=0.27.0
+transformers>=4.38.0
+accelerate>=0.27.0
+gradio>=4.19.0
+Pillow>=10.0.0
+safetensors>=0.4.0

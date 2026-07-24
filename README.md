@@ -95,7 +95,8 @@ See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) for design rationale, memory/
 ```
 diffusecraft/
 ├── app.py                     # Gradio app: model loading, CUDA handling, generation
-├── requirements.txt           # Python dependencies
+├── requirements.txt           # Python dependencies (local install, pins torch)
+├── requirements-colab.txt     # Colab install list (excludes torch/torchvision)
 ├── DiffuseCraft_Colab.ipynb   # One-click Colab launcher with public URL
 ├── docs/
 │   └── ARCHITECTURE.md        # Design notes and extension points
