@@ -8,7 +8,7 @@ text prompts using free, pretrained latent diffusion models (Stable Diffusion
 **free Google Colab GPU** with a public browser URL — no paid API keys, no
 proprietary models.
 
-[![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/YOUR_USERNAME/DiffuseCraft/blob/main/DiffuseCraft_Colab.ipynb)
+[![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/shakib79ai/DiffuseCraft/blob/main/DiffuseCraft_Colab.ipynb)
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Python](https://img.shields.io/badge/python-3.9%2B-blue.svg)
 ![CUDA](https://img.shields.io/badge/CUDA-enabled-76B900.svg)
@@ -47,7 +47,7 @@ proprietary models.
 ### Option B — Local machine with an NVIDIA GPU
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/DiffuseCraft.git
+git clone https://github.com/shakib79ai/DiffuseCraft.git
 cd DiffuseCraft
 
 python -m venv .venv
