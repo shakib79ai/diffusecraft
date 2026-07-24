@@ -1,17 +1,19 @@
 # Colab-specific install list.
 #
-# torch and torchvision are listed together deliberately. If only one of
-# them is pinned (or one is left out entirely), pip can silently upgrade
-# torch as a transitive dependency of diffusers/transformers/accelerate
-# while leaving the previously-installed torchvision behind — the two
-# become ABI-incompatible and you get errors like
-# "RuntimeError: operator torchvision::nms does not exist".
-# Listing both here forces pip to resolve them together in one solve:
-# torchvision's own metadata pins the exact torch version it needs, so
-# pip reconciles both correctly instead of upgrading just one.
+# torch/torchvision are deliberately NOT listed here. Colab preinstalls
+# them already paired with a much larger CUDA-toolkit-versioned stack
+# (RAPIDS cuml/cudf, xformers, etc.), and letting pip re-resolve either one
+# -- even just to satisfy a loose diffusers/transformers floor -- can pull
+# in a torch build linked against a different CUDA major version and break
+# that entire preinstalled stack.
+#
+# The notebook instead generates constraints.txt, pinning torch/torchvision
+# to whatever Colab already has, and passes it via `pip install -c
+# constraints.txt`. A constraints file caps versions without adding
+# packages: if any dependency here needs a newer torch than what's pinned,
+# pip will fail loudly with a clear resolution error instead of silently
+# upgrading torch and breaking the rest of the environment.
 
-torch>=2.1.0
-torchvision>=0.16.0
 diffusers>=0.27.0
 transformers>=4.38.0
 accelerate>=0.27.0
