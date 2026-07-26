@@ -90,20 +90,54 @@ See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) for design rationale, memory/
 
 ---
 
+## Production Deployment
+
+This repo's `app.py` + Colab notebook is the **OSS demo** — a single-process app for
+one user on a local GPU or a free Colab runtime. Running DiffuseCraft as a public,
+multi-tenant hosted service is a different engineering problem (async job queues,
+autoscaling GPU fleets, auth, rate limiting, content moderation, HA data stores), and
+that's specified in full in a dedicated production doc set:
+
+| Document | Covers |
+|---|---|
+| [`docs/PRODUCTION_ARCHITECTURE.md`](docs/PRODUCTION_ARCHITECTURE.md) | Full AWS system design: VPC, ECS-on-EC2 GPU compute, async SQS job pipeline, RDS PostgreSQL, ALB, CloudFront, Route 53, CI/CD, scaling, disaster recovery |
+| [`docs/API_REFERENCE.md`](docs/API_REFERENCE.md) | The production REST API contract (`POST /v1/generate`, job polling, webhooks, auth, rate limits) |
+| [`docs/COST_ESTIMATE.md`](docs/COST_ESTIMATE.md) | Monthly AWS cost by tier (MVP vs. production), compute purchasing tradeoffs, cost optimization levers |
+| [`docs/SECURITY.md`](docs/SECURITY.md) | IAM, network isolation, secrets/encryption, WAF, content moderation, audit logging, pre-launch security checklist |
+
+**Architecture at a glance:** Route 53 → CloudFront + AWS WAF → ALB → FastAPI control
+plane (Fargate) → Amazon SQS → GPU worker fleet (ECS-on-EC2, `g5.xlarge`, autoscaled,
+Spot burst) → S3 (images, CDN-served) + RDS PostgreSQL with `pgvector` (jobs, users,
+semantic prompt caching) + ElastiCache Redis (rate limiting). GPU compute is the
+dominant cost driver (70-85% of spend) — see the cost doc for the SageMaker
+Asynchronous Inference alternative that scales to zero for low/spiky traffic.
+
+The root [`Dockerfile`](Dockerfile) containerizes the current demo app as a starting
+point for that GPU worker image; `app.py`'s Gradio launch respects `GRADIO_SHARE=false`
+and `PORT` env vars so the same code runs correctly both behind Colab's public tunnel
+and behind a container orchestrator/load balancer.
+
+---
+
 ## Project Structure
 
 ```
 diffusecraft/
 ├── app.py                     # Gradio app: model loading, CUDA handling, generation
 ├── requirements.txt           # Python dependencies (local install, pins torch)
-├── requirements-colab.txt     # Colab install list (excludes torch/torchvision)
+├── requirements-colab.txt     # Colab install list (torch/torchvision pinned via constraints.txt)
 ├── DiffuseCraft_Colab.ipynb   # One-click Colab launcher with public URL
+├── Dockerfile                 # Container image for the demo app / GPU worker base
+├── .dockerignore
 ├── docs/
-│   └── ARCHITECTURE.md        # Design notes and extension points
+│   ├── ARCHITECTURE.md            # Demo app design notes and extension points
+│   ├── PRODUCTION_ARCHITECTURE.md # Full AWS production system design
+│   ├── API_REFERENCE.md           # Production REST API contract
+│   ├── COST_ESTIMATE.md           # AWS monthly cost estimates by tier
+│   └── SECURITY.md                # Security controls and compliance checklist
 ├── examples/
 │   └── sample_prompts.md      # Curated prompt examples
 ├── assets/                    # Sample output images
-├── requirements.txt
 ├── LICENSE
 ├── CONTRIBUTING.md
 └── README.md
@@ -144,7 +178,8 @@ manual download step needed.
 - [ ] LoRA / textual inversion support
 - [ ] Batch generation and prompt queues
 - [ ] SDXL and SDXL-Turbo support
-- [ ] Dockerfile for containerized deployment
+- [ ] Reference `server/` FastAPI implementation of [`docs/API_REFERENCE.md`](docs/API_REFERENCE.md)
+- [ ] Terraform modules for [`docs/PRODUCTION_ARCHITECTURE.md`](docs/PRODUCTION_ARCHITECTURE.md)
 
 ## Contributing
 

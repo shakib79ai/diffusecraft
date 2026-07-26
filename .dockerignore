@@ -1,0 +1,14 @@
+.git/
+.gitignore
+*.md
+docs/
+examples/
+assets/
+*.ipynb
+.ipynb_checkpoints/
+__pycache__/
+*.pyc
+.venv/
+venv/
+.vscode/
+.idea/

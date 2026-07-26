@@ -8,6 +8,7 @@ Google Colab GPU runtime (see DiffuseCraft_Colab.ipynb).
 """
 
 import gc
+import os
 import time
 from dataclasses import dataclass
 
@@ -229,4 +230,13 @@ with gr.Blocks(title="DiffuseCraft — Text to Image", css=CSS, theme=gr.themes.
 
 
 if __name__ == "__main__":
-    demo.queue().launch(share=True)
+    # GRADIO_SHARE defaults on for Colab (needs the public *.gradio.live tunnel to be
+    # reachable from a browser) and should be set to "false" in containerized/ALB
+    # deployments, where the load balancer -- not Gradio's own tunnel -- exposes the
+    # service publicly.
+    share = os.environ.get("GRADIO_SHARE", "true").lower() != "false"
+    demo.queue().launch(
+        server_name="0.0.0.0",
+        server_port=int(os.environ.get("PORT", 7860)),
+        share=share,
+    )
